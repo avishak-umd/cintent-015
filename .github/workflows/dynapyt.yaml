@@ -33,7 +33,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     # CINTENT >> INSERT_CINTENT
-    - uses: clonedSemicolon/setup-dynapyt@main
+    - uses: clonedSemicolon/seytup-dynapyt@main
       with:
         directory: my_package/
 
