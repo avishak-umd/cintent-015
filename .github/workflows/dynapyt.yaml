@@ -55,7 +55,7 @@ jobs:
 
     - name: Collect dependency-install trace
       if: always()
-      uses: clonedSemicolon/seytup-dynapyt@v1
+      uses: clonedSemicolon/seytup-dynapyt@master
       with:
         mode: collect
         artifact-name: dynapyt-install-dependencies
