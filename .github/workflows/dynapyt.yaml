@@ -33,9 +33,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     # CINTENT >> INSERT_CINTENT
-    - uses: clonedSemicolon/seytup-dynapyt@master
+    - name: Setup DynaPyt
+      id: dynapyt
+      uses: clonedSemicolon/seytup-dynapyt@master   # or ./ if testing locally
       with:
-        directory: my_package/
+          directory: "your_package"                   # source dir to instrument
+          analysis: "ci_analyses.CallGraphCI.CallGraphCI"
+          output: "dynapyt-output"
 
     - name: Update OS, pip & install custom dependencies
       run: |
@@ -78,12 +82,18 @@ jobs:
       run: |
         make lint
         
-    # CINTENT >> INSERT_CINTENT
-    - uses: actions/upload-artifact@v4
+# 4. Merge outputs from all test processes
+    - name: Merge DynaPyt outputs
       if: always()
+      run: python -m dynapyt.post_run --output_dir="${GITHUB_WORKSPACE}/dynapyt-output"
+      # 5. Upload the call graph / trace
+    - name: Upload DynaPyt results
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        name: dynapyt-callgraph
-        path: dynapyt.json
+          name: dynapyt-callgraph
+          path: dynapyt-output/
+          if-no-files-found: error
 
   # CINTENT >> UNSUPPORTED_OS
   # build-windows:
