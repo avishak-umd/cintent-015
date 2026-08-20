@@ -32,11 +32,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         
-    - name: Start DynaPyt tracing
-      uses: clonedSemicolon/seytup-dynapyt@master
+    - name: Start DynaPyt for pip
+      uses: clonedSemicolon/seytup-dynapyt@v1
       with:
-        directory: "src/my_package"
-        analysis: "dynapyt.analyses.TraceAll.TraceAll"
+        package: pip
+        analysis: dynapyt.analyses.CallGraph.CallGraph
+        dynapyt_path: git+https://github.com/sola-st/DynaPyt.git@07680e074c9f280c320f9e359500f672b662de7f
 
 
     - name: Update OS, pip & install custom dependencies
@@ -52,21 +53,12 @@ jobs:
         pip install attrdict3
         conda install -c conda-forge liblsl
 
-    - name: Collect trace
+    - name: Collect dependency-install trace
       if: always()
-      uses: clonedSemicolon/seytup-dynapyt@master
+      uses: clonedSemicolon/seytup-dynapyt@v1
       with:
         mode: collect
-        artifact-name: specific-step-trace
-
-    - name: Preview trace in workflow log
-      if: always()
-      run: |
-        if [[ -f "$DYNAPYT_OUTPUT_DIR/output.log" ]]; then
-          sed -n '1,300p' "$DYNAPYT_OUTPUT_DIR/output.log"
-        else
-          echo "No trace was produced"
-        fi
+        artifact-name: dynapyt-install-dependencies
 
     - name: Install dependencies
       run: |
@@ -95,14 +87,8 @@ jobs:
     - name: lint
       run: |
         make lint
-        
-    # 4. Merge outputs from all test processes
-    - name: Collect & upload DynaPyt traces
-      if: always()
-      uses: clonedSemicolon/seytup-dynapyt@master
-      with:
-        mode: collect
-        artifact-name: dynapyt-results
+      
+
 
   # CINTENT >> UNSUPPORTED_OS
   # build-windows:
