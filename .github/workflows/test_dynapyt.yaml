@@ -1,0 +1,56 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: BciPy_Dynapyt
+
+# CINTENT >> MANUAL_TRIGGER
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - '**'
+on: [repository_dispatch, workflow_dispatch]
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # CINTENT >> REMOVE_MATRIX
+        # python-version: [3.9, 3.10.6]
+        python-version: [3.10.6]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Start DynaPyt for pip
+      uses: clonedSemicolon/seytup-dynapyt@master
+      with:
+        package: pip
+        analysis: dynapyt.analyses.CallGraph.CallGraph
+        dynapyt_path: git+https://github.com/sola-st/DynaPyt.git@07680e074c9f280c320f9e359500f672b662de7f
+
+
+    - name: Update OS, pip & install custom dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libgtk-3-dev
+        pip install attrdict3
+    
+    - name: Collect dependency-install trace
+      if: always()
+      uses: clonedSemicolon/seytup-dynapyt@master
+      with:
+        mode: collect
+        artifact-name: dynapyt-install-dependencies
+
+    
