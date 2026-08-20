@@ -35,13 +35,10 @@ jobs:
     # CINTENT >> INSERT_CINTENT
     
     - name: Setup DynaPyt
-      uses: clonedSemicolon/seytup-dynapyt@b34a33053c63d757b2113892c18ccac5bba1fe1d
+      uses: clonedSemicolon/seytup-dynapyt@master
       with:
-        # "." is the zero-configuration option for arbitrary repositories.
-        # Prefer "src" or the package directory when known.
-        directory: "."
+        directory: "src/mypackage"
         analysis: "dynapyt.analyses.CallGraph.CallGraph"
-        dynapyt_path: "git+https://github.com/sola-st/DynaPyt.git@07680e074c9f280c320f9e359500f672b662de7f"
 
     - name: Update OS, pip & install custom dependencies
       run: |
@@ -85,13 +82,12 @@ jobs:
         make lint
         
     # 4. Merge outputs from all test processes
-    - name: Upload DynaPyt results
+    - name: Collect & upload DynaPyt traces
       if: always()
-      uses: actions/upload-artifact@v7
+      uses: clonedSemicolon/seytup-dynapyt@master
       with:
-        name: dynapyt-${{ github.job }}
-        path: "**/dynapyt.json"
-        if-no-files-found: error
+        mode: collect
+        artifact-name: dynapyt-results
 
   # CINTENT >> UNSUPPORTED_OS
   # build-windows:
