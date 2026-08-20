@@ -32,13 +32,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         
-    # CINTENT >> INSERT_CINTENT
-    
-    - name: Setup DynaPyt
+    - name: Start DynaPyt tracing
       uses: clonedSemicolon/seytup-dynapyt@master
       with:
-        directory: "src/mypackage"
-        analysis: "dynapyt.analyses.CallGraph.CallGraph"
+        directory: "src/my_package"
+        analysis: "dynapyt.analyses.TraceAll.TraceAll"
+
 
     - name: Update OS, pip & install custom dependencies
       run: |
@@ -52,6 +51,22 @@ jobs:
         python -m pip install --upgrade pip
         pip install attrdict3
         conda install -c conda-forge liblsl
+
+    - name: Collect trace
+      if: always()
+      uses: clonedSemicolon/seytup-dynapyt@master
+      with:
+        mode: collect
+        artifact-name: specific-step-trace
+
+    - name: Preview trace in workflow log
+      if: always()
+      run: |
+        if [[ -f "$DYNAPYT_OUTPUT_DIR/output.log" ]]; then
+          sed -n '1,300p' "$DYNAPYT_OUTPUT_DIR/output.log"
+        else
+          echo "No trace was produced"
+        fi
 
     - name: Install dependencies
       run: |
