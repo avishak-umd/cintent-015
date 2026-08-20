@@ -33,7 +33,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     - name: Start DynaPyt for pip
-      uses: clonedSemicolon/seytup-dynapyt@v1
+      uses: clonedSemicolon/seytup-dynapyt@master
       with:
         package: pip
         analysis: dynapyt.analyses.CallGraph.CallGraph
