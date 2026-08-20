@@ -33,13 +33,15 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     # CINTENT >> INSERT_CINTENT
+    
     - name: Setup DynaPyt
-      id: dynapyt
-      uses: clonedSemicolon/seytup-dynapyt@master   # or ./ if testing locally
+      uses: clonedSemicolon/seytup-dynapyt@b34a33053c63d757b2113892c18ccac5bba1fe1d
       with:
-          directory: "your_package"                   # source dir to instrument
-          analysis: "ci_analyses.CallGraphCI.CallGraphCI"
-          output: "dynapyt-output"
+        # "." is the zero-configuration option for arbitrary repositories.
+        # Prefer "src" or the package directory when known.
+        directory: "."
+        analysis: "dynapyt.analyses.CallGraph.CallGraph"
+        dynapyt_path: "git+https://github.com/sola-st/DynaPyt.git@07680e074c9f280c320f9e359500f672b662de7f"
 
     - name: Update OS, pip & install custom dependencies
       run: |
@@ -82,18 +84,14 @@ jobs:
       run: |
         make lint
         
-# 4. Merge outputs from all test processes
-    - name: Merge DynaPyt outputs
-      if: always()
-      run: python -m dynapyt.post_run --output_dir="${GITHUB_WORKSPACE}/dynapyt-output"
-      # 5. Upload the call graph / trace
+    # 4. Merge outputs from all test processes
     - name: Upload DynaPyt results
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
-          name: dynapyt-callgraph
-          path: dynapyt-output/
-          if-no-files-found: error
+        name: dynapyt-${{ github.job }}
+        path: "**/dynapyt.json"
+        if-no-files-found: error
 
   # CINTENT >> UNSUPPORTED_OS
   # build-windows:
