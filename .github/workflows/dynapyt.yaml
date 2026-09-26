@@ -32,10 +32,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         
-    - name: Start DynaPyt for pip
+    - name: Start DynaPyt
       uses: clonedSemicolon/seytup-dynapyt@master
       with:
-        package: bcipy
+        # bcipy is installed editable (make dev-install), so the tests import
+        # the workspace copy; instrument it before any step runs.
+        directory: bcipy
         analysis: dynapyt.analyses.CallGraph.CallGraph
         dynapyt_path: git+https://github.com/sola-st/DynaPyt.git@07680e074c9f280c320f9e359500f672b662de7f
 
@@ -53,22 +55,16 @@ jobs:
         pip install attrdict3
         conda install -c conda-forge liblsl
 
-    - name: Collect dependency-install trace
-      if: always()
-      uses: clonedSemicolon/seytup-dynapyt@master
-      with:
-        mode: collect
-        artifact-name: dynapyt-install-dependencies
-
     - name: Install dependencies
       run: |
         make dev-install
 
     - name: Unit test
       if: always()
+      timeout-minutes: 330
       run: |
         set +e
-        xvfb-run coverage run --branch --source=bcipy -m pytest --mpl -k "not slow"
+        xvfb-run coverage run --branch --source=bcipy -m pytest --mpl -k "not slow" --junitxml=dynapyt-output/junit.xml
         if [ $? -eq 0 ]b
         then 
           echo "Ubuntu run complete!"
@@ -87,6 +83,13 @@ jobs:
     - name: lint
       run: |
         make lint
+
+    - name: Collect DynaPyt traces
+      if: always()
+      uses: clonedSemicolon/seytup-dynapyt@master
+      with:
+        mode: collect
+        artifact-name: dynapyt-results
       
 
 
