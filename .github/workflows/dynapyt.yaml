@@ -35,7 +35,7 @@ jobs:
     - name: Start DynaPyt for pip
       uses: clonedSemicolon/seytup-dynapyt@master
       with:
-        package: pip
+        package: bcipy
         analysis: dynapyt.analyses.CallGraph.CallGraph
         dynapyt_path: git+https://github.com/sola-st/DynaPyt.git@07680e074c9f280c320f9e359500f672b662de7f
 
